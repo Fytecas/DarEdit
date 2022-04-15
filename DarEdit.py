@@ -5,6 +5,35 @@ from tkinter.filedialog import *
 from tkinter.messagebox import *
 import json
 import subprocess
+import webbrowser
+
+def license_web():
+    print("web")
+    webbrowser.open_new(r"https://www.gnu.org/licenses/gpl-3.0.html")
+
+splash_screen = Tk()
+img_file = "logo.png"
+img = PhotoImage(file=img_file)
+splash_screen.geometry("300x400+625+200")
+splash_screen.overrideredirect(1)
+canvas = Canvas(splash_screen,bd=0,highlightthickness=0,width=300,height=300,bg="white")
+canvas.create_image(150,140,image=img)
+textvar="par Fytecas"
+label = Label(splash_screen,text=textvar,bg="white",font="helvetica")
+licence = Label(splash_screen,text="GNU General Public License (GPL)",bg="white")
+canvas.grid()
+label.grid()
+licence.grid()
+splash_screen.configure(bg="white")
+
+
+
+
+def destroy_splash():
+    splash_screen.destroy()
+splash_screen.after(3000,destroy_splash)
+splash_screen.mainloop()
+
 
 #on load les option du fichier options.json
 with open("options.json","r")as file:
@@ -30,7 +59,6 @@ scrolly1.pack(side= RIGHT,fill =Y)
 text[1]  = tk.Text(root,yscrollcommand=scrolly1.set,bg=options["bg"],fg=options["textcolor"],insertbackground=options["insertbg"],undo=True)
 #la variable textzone permet de savoir sur quelle widget text se trouve le curseur
 textzone=0
-
 #création des fonction de l'éditeur
     #refresh permet de mettre a jour tout les widget text, lorsque l'on ouvre deux fois le même fichier par exemple
 def refresh():
@@ -134,6 +162,8 @@ def redo(event):
 def undo(event):
     text[textzone].edit_undo()
     print("undo")
+def open_source():
+    webbrowser.open_new(r"https://github.com/Fytecas/DarEdit.git")
 
 
 
@@ -152,6 +182,10 @@ menufichier.add_command(label="Mettre a jour",command=refresh)
 menufichier.add_separator()
 menufichier.add_command(label="Quitter",command=quit)
 
+menu_licence = tk.Menu(menu_haut,tearoff=0)
+menu_haut.add_cascade(label="licence | open source",menu=menu_licence)
+menu_licence.add_command(label="GNU General Public License (GPL)",command=license_web)
+menu_licence.add_command(label="Un logiciel par Fytecas | Fichiers source",command=open_source)
 
 #création des raccoucis
 root.bind("<Control-s>",touch_save)
