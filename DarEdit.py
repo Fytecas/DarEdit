@@ -61,11 +61,11 @@ pw = ttk.PanedWindow(orient=HORIZONTAL)
 text=[0,1]
 scrolly = tk.Scrollbar(root)
 scrolly.pack(side= LEFT,fill =Y)
-text[0]  = tk.Text(root,yscrollcommand=scrolly.set,bg=options["bg"],fg=options["textcolor"],insertbackground=options["insertbg"],undo=True)
+text[0]  = tk.Text(root,yscrollcommand=scrolly.set,bg=options["bg"],fg=options["textcolor"],insertbackground=options["insertbg"],undo=True,font=("Arial",10))
 #le zone de texte secondaire
 scrolly1 = tk.Scrollbar(root)
 scrolly1.pack(side= RIGHT,fill =Y)
-text[1]  = tk.Text(root,yscrollcommand=scrolly1.set,bg=options["bg"],fg=options["textcolor"],insertbackground=options["insertbg"],undo=True)
+text[1]  = tk.Text(root,yscrollcommand=scrolly1.set,bg=options["bg"],fg=options["textcolor"],insertbackground=options["insertbg"],undo=True,font=("Arial",10))
 #la variable textzone permet de savoir sur quelle widget text se trouve le curseur
 textzone=0
 #création des fonction de l'éditeur
