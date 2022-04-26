@@ -6,6 +6,7 @@ from tkinter.messagebox import *
 import json
 import subprocess
 import webbrowser
+import sys
 
 def license_web():
     print("web")
@@ -38,7 +39,15 @@ splash_screen.mainloop()
 #on load les option du fichier options.json
 with open("options.json","r")as file:
     options= json.load(file)
-
+chemin_arg = ""
+try:
+    if sys.argv[1]!='':
+        chemin_arg = sys.argv[1]
+        options["recentfile"][0]=chemin_arg
+    else:
+        chemin_arg=options["recentfile"][0]
+except:
+    pass
 #on creer la fenetre et ses widgets
 root = Tk()
 root.title("DarEdit")
@@ -64,36 +73,29 @@ textzone=0
 def refresh():
     el = 0
     for i in text:
-        print(i)
-        if i != "":
-            with open(options["recentfile"][el], "r") as file:
-                text[el].insert(1.0, file.read())
+        if options["recentfile"][el] != "":
+            try:
+                with open(options["recentfile"][el], "r") as file:
+                    text[el].insert(1.0, file.read())
 
-                root.title(options["recentfile"][el] + " - DarEdit")
+                    root.title(options["recentfile"][el] + " - DarEdit")
+            except:
+                options["recentfile"][el] = ""
         el=+1
 
 #la variable save permet de sauver un widget text
 def save(textnum):
-
-    message = tk.Message(root,text="text "+str(textzone)+" saved")
-    message.pack()
-
-
     contenu_text=text[textnum].get(1.0,tk.END)
-
     recentfile=options["recentfile"]
     if recentfile[textnum]!="":
         with open(recentfile[textnum],"w")as f:
             f.write(contenu_text)
     else:
         sauv = asksaveasfilename(title="Sauvegardez votre fichier")
-        with open(sauv,"w") as file:
-            file.write(contenu_text)
-        recentfile[textnum]=sauv
-
-    def destroy_message():
-        message.destroy()
-    root.after(1500,destroy_message)
+        if sauv != "":
+            with open(sauv,"w") as file:
+                file.write(contenu_text)
+            recentfile[textnum]=sauv
 #la fonction open_new_file permet d'ouvrir un fichier dans un widget text
 def open_new_file(textnum):
     open_new = askopenfilename(title="ouvrir un nouveau fichier")
@@ -101,6 +103,7 @@ def open_new_file(textnum):
         with open(open_new,"r") as file:
             text[textnum].insert(1.0,file.read())
             root.title(options["recentfile"][textnum]+" - DarEdit")
+            root.update()
 
 #la fonction new_file permet de creer un nouveau fichier et de demander a l'utilisateur si il veut sauvegarder le fichier actuel
 def new_file(textnum):
@@ -142,24 +145,25 @@ def textzone_refresh(event):
 
 #la fonction run permet de lancer le script
 def run(event=0):
+    save(textzone)
     subprocess.call(options["recentfile"][textzone], shell=True)
 
-def touch_save_in(event):
+def touch_save_in(event=0):
     save_in(textzone)
 
-def touch_quit(event):
+def touch_quit(event=0):
     quit(textzone)
 
-def touch_open_new_file(event):
+def touch_open_new_file(event=0):
     open_new_file(textzone)
 def touch_save(event=0):
     save(textzone)
-def touch_new_file(event):
+def touch_new_file(event=0):
     new_file(textzone)
-def redo(event):
+def redo(event=0):
     text[textzone].edit_redo()
     print("redo")
-def undo(event):
+def undo(event=0):
     text[textzone].edit_undo()
     print("undo")
 def open_source():
@@ -173,16 +177,22 @@ menu_haut = tk.Menu(root,tearoff=0)
 root.config(menu=menu_haut)
 menufichier = tk.Menu(menu_haut,tearoff=0)
 menu_haut.add_cascade(label="Fichier",menu=menufichier)
-menufichier.add_command(label="Ouvrir nouveau",command=open_new_file)
-menufichier.add_command(label="Nouveau",command=new_file)
+menufichier.add_command(label="Ouvrir nouveau",command=touch_open_new_file)
+menufichier.add_command(label="Nouveau",command=touch_new_file)
 menufichier.add_command(label="Enregistrer",command=touch_save)
-menufichier.add_command(label="Enregistrer sous...",command=save_in)
+menufichier.add_command(label="Enregistrer sous...",command=touch_save_in)
+menufichier.add_separator()
 menufichier.add_command(label="lancer",command=run)
 menufichier.add_command(label="Mettre a jour",command=refresh)
 menufichier.add_separator()
 menufichier.add_command(label="Quitter",command=quit)
 
-menu_licence = tk.Menu(menu_haut,tearoff=0)
+menu_edit = Menu(menu_haut,tearoff=0)
+menu_haut.add_cascade(label="Edition",menu=menu_edit)
+menu_edit.add_command(label="undo",command=undo)
+menu_edit.add_command(label="redo",command=redo)
+
+menu_licence = Menu(menu_haut,tearoff=0)
 menu_haut.add_cascade(label="licence | open source",menu=menu_licence)
 menu_licence.add_command(label="GNU General Public License (GPL)",command=license_web)
 menu_licence.add_command(label="Un logiciel par Fytecas | Fichiers source",command=open_source)
@@ -209,4 +219,8 @@ root.mainloop()
 
 with open("options.json","w")as f:
     json.dump(options, f)
+
+
+
+
 
